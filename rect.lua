@@ -28,6 +28,8 @@ function Rect:compute(options)
 	)
 	
 	self._context.canvas = canvas
+	
+	love.window.setMode(canvas:getWidth(), canvas:getHeight())
 end
 
 function Rect:draw(data, clearBefore)

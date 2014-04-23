@@ -31,7 +31,7 @@ function Splice(t, index, howMany, ...)
 	assert(t and index and howMany)
 	local arg = {...}
     local removed = {}
-    local tableSize = table.getn(t) -- Table size
+    local tableSize = #t--table.getn(t) -- Table size
     local argNb = #arg -- Number of elements to insert
     -- Check parameter validity
     if index < 1 then index = 1 end
@@ -65,7 +65,7 @@ function Splice(t, index, howMany, ...)
     return removed
 end
 
-function Round(num, idp)
-  local mult = 10^(idp or 0)
-  return math.floor(num * mult + 0.5) / mult
+function Round(val, decimal)
+  local exp = decimal and 10^decimal or 1
+  return math.ceil(val * exp - 0.5) / exp
 end

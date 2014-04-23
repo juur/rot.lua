@@ -13,16 +13,16 @@ function Display:new(options)
 	options = options or {}
 	
 	local defaultOptions = {
-		width 		= options.width 		or 80,
-		height 		= options.height 		or 25,
+		width 		= options.width 		or 40,
+		height 		= options.height 		or 20,
 		layout 		= options.layout 		or 'rect',
 		spacing		= options.spacing 		or 1,
 		border 		= options.border 		or 0,
-		fontSize 	= options.fontSize 		or 18,
+		fontSize 	= options.fontSize 		or 32,
 		fontFamily	= options.fontFamily 	or 'lucon',
 		fontStyle	= options.fontStyle 	or 'Regular',
 		fg			= options.fg 			or '#ccccccff',
-		bg			= options.bg 			or '#302010ff',
+		bg			= options.bg 			or '#000000ff',
 		tileWidth	= options.tileWidth 	or 32,
 		tileHeight	= options.tileHeight 	or 32,
 		tileMap		= options.tileMap 		or {},
@@ -121,9 +121,6 @@ end
 
 
 function toRGB(string)
-	--assert(string)
-	--assert(type(string) == 'string',"fail on"..tostring(string))
-	
 	local bg = {}
 	
 	for i in string:gmatch('[0-9a-fA-F][0-9a-fA-F]') do

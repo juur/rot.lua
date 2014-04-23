@@ -4,14 +4,12 @@ table.inspect = require "inspect"
 
 FOV = Class:newClass("FOV",Object)
 
-function FOV:new(lightPassesCallback, options)
+function FOV:new(cb, options)
 	local o = Object.new(self)
 	
 	options = options or {}
-	assert(lightPassesCallback)
 	
-	o._lightPasses = lightPassesCallback
-	
+	o._lightPasses = cb	
 	o._options = {
 		topology = 8
 	}
@@ -24,8 +22,6 @@ function FOV:new(lightPassesCallback, options)
 end
 
 function FOV:_getCircle(cx,cy,r)
-	--assert(cx and cy and r)
-	
 	local result = {}
 	local dirs, countFactor
 	local startOffset = {}

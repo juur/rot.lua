@@ -3,19 +3,17 @@ require "color"
 
 Lighting = Class:newClass("Lighting",Object)
 
-function Lighting:new(refCallback, options)
+function Lighting:new(cb, options)
 	local o = Object.new(self)
 	options = options or {}
-	assert(type(refCallback) == 'function')
 	
-	o._refCallback = refCallback
 	o._options = {
 		passes = 1,
 		emissionThreshold = 100,
 		range = 10,
-	};
+	}
 	o._fov = nil
-	
+	o._refCallback = cb
 	o._lights = {}
 	o._reflectivityCache = {}
 	o._fovCache = {}
@@ -34,7 +32,6 @@ function Lighting:setOptions(options)
 end
 
 function Lighting:setFOV(fov)
-	--assert(fov)
 	self._fov = fov
 	self._fovCache = {}
 	return self
@@ -54,19 +51,17 @@ end
 function Lighting:reset()
 	self._reflectivityCache = {}
 	self._fovCache = {}
-	
 	return self
 end
 
 function Lighting:compute(callback)
-	--assert(callback)
 	local doneCells = {}
 	local emittingCells = {}
 	local litCells = {}
 	
 	for key,light in pairs(self._lights) do
 		if not emittingCells[key] then
-			emittingCells[key] = {0,0,0,0}
+			emittingCells[key] = {0,0,0,255}
 		end
 		Color.add_(emittingCells[key], light)
 	end
@@ -158,9 +153,7 @@ function Lighting:_emitLightFromCell(x,y,color,litCells)
 	return self
 end
 
-function Lighting:_updateFOV(x,y)
-	--assert(x and y, "x or y are nil")
-	
+function Lighting:_updateFOV(x,y)	
 	local key1 = x..','..y
 	local cache = {}
 	self._fovCache[key1] = cache
@@ -168,7 +161,7 @@ function Lighting:_updateFOV(x,y)
 	local cb = function(x,y,r,vis)
 		local key2 = x..','..y
 		local formFactor = vis * (1-r/range)
-		if formFactor == 0 then return end
+		if (formFactor == 0) then return end
 		cache[key2] = formFactor
 	end
 	self._fov:compute(x,y,range,cb)

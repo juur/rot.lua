@@ -31,4 +31,11 @@ function Color.add_(col1,col2)
 	return col1
 end
 
-		
+function Color.multiply_(col1,col2)
+	for i=1,3 do
+		col1[i] = col1[i] * (col2[i]/255)
+		col1[i] = Round(col1[i])
+	end
+	
+	return col1
+end

@@ -18,7 +18,6 @@ function PreciseShadowcasting:compute(x,y,R,callback)
 		local neighbors = self:_getCircle(x,y,r)
 		local neighborCount = #neighbors
 		
-		-- should this be ipairs?
 		for key,neighbor in ipairs(neighbors) do
 			local i = key - 1
 			
@@ -103,13 +102,13 @@ function PreciseShadowcasting:_checkVisibility(A1,A2,blocks,SHADOWS)
 			local P = SHADOWS[index1+1]
 			visibleLength = (A2[1]*P[2] - P[1]*A2[2]) / (P[2] * A2[2])
 			if blocks then
-				Splice(SHADOWS, index1, remove, A2);
+				Splice(SHADOWS, index1+1, remove, A2);
 			end
 		else
 			local P = SHADOWS[index2+1]
 			visibleLength = (P[1]*A1[2] - A1[1]*P[2]) / (A1[2] * P[2])
 			if blocks then
-				Splice(SHADOWS, index1, remove, A1);
+				Splice(SHADOWS, index1+1, remove, A1);
 			end
 		end
 	else
@@ -118,11 +117,11 @@ function PreciseShadowcasting:_checkVisibility(A1,A2,blocks,SHADOWS)
 			local P2 = SHADOWS[index2+1]
 			visibleLength = (P2[1]*P1[2] - P1[1]*P2[2]) / (P1[2] * P2[2])
 			if blocks then 
-				Splice(SHADOWS, index1, remove)
+				Splice(SHADOWS, index1+1, remove)
 			end
 		else
 			if blocks then
-				Splice(SHADOWS, index1, remove, A1, A2)
+				Splice(SHADOWS, index1+1, remove, A1, A2)
 			end
 			return 1
 		end

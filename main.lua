@@ -20,7 +20,7 @@ function Game:new()
 end	
 
 function Game:init()
-	self.display = Display:new()
+	self.display = Display:new({width=20,height=9,fontSize=64})
 	self:generateMap();
 
 	self.scheduler = Simple:new()
@@ -33,7 +33,8 @@ function Game:init()
 end
 
 function Game:generateMap()
-	local digger = Arena:new()
+	local digger = Arena:new(self.display._options.width,
+		self.display._options.height)
 
 	digCallback = function(x, y, value) 
 		local key = x..","..y
@@ -48,12 +49,20 @@ function Game:generateMap()
 	self.map["10"..",".."5"] = "#"
 	self.map["10"..",".."6"] = "#"
 	self.map["10"..",".."7"] = "#"
+	
+	self.map["30"..",".."9"] = "#"
+	self.map["30"..",".."10"] = "#"
+	self.map["30"..",".."11"] = "#"
+	
+	self.map["50"..",".."1"] = "#"
+	self.map["50"..",".."2"] = "#"
+	self.map["50"..",".."3"] = "#"
 
 	self:createPlayer()	
 end
 
 function Game:createPlayer()
-	self.player = Player:new(10,10)
+	self.player = Player:new(5,5)
 end
 
 function Game:draw(xy,lightData,tile)
@@ -62,7 +71,16 @@ function Game:draw(xy,lightData,tile)
 	
 	if not self.map[key] then return end
 	
-	self.display:draw(xy[1], xy[2], self.map[key], lightData, {10,20,50,155} )
+	local k = self.map[key]
+	local col
+	
+	if k == "#" then col = {190,150,100,255}
+	elseif k == "." then col = {0,200,20,250}
+	end
+	
+	Color.multiply_(col, lightData)
+	
+	self.display:draw(xy[1], xy[2], self.map[key], col)
 end
 
 
@@ -94,19 +112,27 @@ function Game:redraw()
 	end
 	
 	local lightCallBack = function(x,y,color)
-		table.insert(lightData, {{tonumber(x),tonumber(y)},color})
+		local key = x..','..y
+		lightData[key] = {{tonumber(x),tonumber(y)},color}
 	end
 	
-	local lighting = Lighting:new(reflectFunc, {range=10,passes=1})
+	local lighting = Lighting:new(reflectFunc, {range=20,passes=2})
 	local fov = PreciseShadowcasting:new(lightPasses, {topology=8})
 	
 	lighting:setFOV(fov)
 	lighting:setLight(self.player._x, self.player._y, {255,255,255,255})
 	lighting:compute(lightCallBack)
 	
-	for _,v in ipairs(lightData) do
-		self:draw(v[1], v[2])
-	end	
+	fov:compute(self.player._x,self.player._y,21,
+		function(x,y,r,v)
+			local key = x..','..y
+			local vd = lightData[key]
+			if vd then
+				self:draw(vd[1], vd[2])
+			end
+		end)
+	
+	self.player:_draw()
 end
 
 function love.keypressed(key, isrepeat)

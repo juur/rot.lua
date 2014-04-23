@@ -3,8 +3,7 @@ require "map"
 Arena = Class:newClass("Arena",Map)
 
 function Arena:new(width, height)
-	local o = Map.new(self, width, height)
-	return o
+	return Map.new(self, width, height)
 end
 
 function Arena:create(callback)
