@@ -1,22 +1,12 @@
-require "object"
+require "entity"
 require "rot"
 
-Player = Class:newClass("Player",Object)
+Player = Class:newClass("Player",Entity)
 
-function Player:new(x,y)
-	local o = Object.new(self)
-	o._x = x
-	o._y = y
-	o:_draw()
+function Player:new()
+	local o = Entity.new(self)
+	o.ch = "@"
 	return o
-end
-
-function Player:_draw()
-	game.display:draw(
-		self._x, self._y, 
-		"@", 
-		"#ff0000"
-	)
 end
 
 function Player:act()
@@ -34,28 +24,16 @@ function Player:handleEvent(e)
 	
 	local dir = ROT.DIRS[4][d]
 	
-	local newX = self._x + dir[1]
-	local newY = self._y + dir[2]
+	local x,y = XY(self._key)
+	local newX = x + dir[1]
+	local newY = y + dir[2]
+	
 	local newKey = newX .. ',' .. newY
 	
-	if canMoveTo(self, newKey) then		
-		game.display:draw(
-			self._x, self._y,
-			game.map[self._x..','..self._y]
-		)
-		self._x = newX
-		self._y = newY
-		self:_draw()
-		game:redraw()
+	if self:canMoveTo(newKey) then	
+		self._level:setEntity(self, newKey)
 	end
 	
 	game.engine:unlock()
 end
 
-function canMoveTo(e, k)
-	d = game.map[k]
-	if d == "#" then 
-		return false
-	end
-	return true
-end

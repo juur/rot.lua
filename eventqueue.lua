@@ -21,9 +21,9 @@ function EventQueue:clear()
 end
 
 function EventQueue:add(event, time)
-	local index = #self._events
-	for i in ipairs(self._eventTimes) do
-		if self._eventTimes(i) > time then
+	local index = #self._events + 1
+	for i,v in ipairs(self._eventTimes) do
+		if v > time then
 			index = i
 			break
 		end
@@ -36,21 +36,21 @@ end
 function EventQueue:get()
 	if #self._events == 0 then return nil end
 	
-	local time = table.remove(self._eventTimes,0)
+	local time = table.remove(self._eventTimes,1)
 	if time > 0 then
 		self._time = self._time + time
-		for i in ipairs(self._eventTimes) do
-			self._eventTimes[i] = self._eventTimes[i] - time
+		for i,v in ipairs(self._eventTimes) do
+			self._eventTimes[i] = v - time
 		end
 	end
 	
-	return table.remove(self._events,0)
+	return table.remove(self._events,1)
 end
 
 function EventQueue:remove(event)
 	local found = false
-	for idx in pairs(self._events) do
-		if self._events[idx] == event then found = idx break end
+	for idx,v in ipairs(self._events) do
+		if v == event then found = idx break end
 	end
 	if not found then return false end
 	self:_remove(found)
@@ -58,5 +58,5 @@ function EventQueue:remove(event)
 end
 
 function EventQueue:_remove(index)
-	table.remove(self._events, index)
+	return table.remove(self._events, index)
 end

@@ -41,13 +41,11 @@ function Rect:draw(data, clearBefore)
 end
 
 function Rect:_drawNoCache(data, clearBefore)
-	local x,y,ch,_fg,_bg = data[1],data[2],data[3],data[4],data[5]
-	
-	if(x<0 or y<0 or x>80 or y>25) then return end
-	
-	local fg = (type(_fg)=='table') and _fg or toRGB(_fg)
-	local bg = (type(_bg)=='table') and _bg or toRGB(_bg)
-	
+	local x,y,ch,fg,bg = data[1],data[2],data[3],data[4],data[5]
+		
+	--local fg = (type(_fg)=='table') and _fg or toRGB(_fg)
+	--local bg = (type(_bg)=='table') and _bg or toRGB(_bg)
+		
 	if clearBefore then
 		local b = self._options.border
 		
@@ -67,13 +65,13 @@ function Rect:_drawNoCache(data, clearBefore)
 	
 	love.graphics.setColor(fg[1],fg[2],fg[3],fg[4])
 	
-	for c in ch:gmatch(".") do
+	--for c in ch:gmatch(".") do
 		love.graphics.printf(
-			c,
+			ch,
 			x * self._spacingX,
 			y * self._spacingY,
 			self._spacingX,
 			'center'
 		)
-	end
+	--end
 end

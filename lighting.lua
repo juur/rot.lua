@@ -37,14 +37,17 @@ function Lighting:setFOV(fov)
 	return self
 end
 
-function Lighting:setLight(x,y,col)
+function Lighting:setLight(x,y,col,range)
 	local key = x..','..y
 	if(col) then
-		self._lights[key] = (type(col) == 'string') 
-		and Color:fromString(col) or col
+		self._lights[key] = {
+			(type(col) == 'string') and Color:fromString(col) or col, 
+			range
+		}
 	else
 		self._lights[key] = nil
 	end
+	
 	return self
 end
 
@@ -57,34 +60,41 @@ end
 function Lighting:compute(callback)
 	local doneCells = {}
 	local emittingCells = {}
+	local emittingRange = {}
 	local litCells = {}
 	
 	for key,light in pairs(self._lights) do
 		if not emittingCells[key] then
-			emittingCells[key] = {0,0,0,255}
+			emittingCells[key] = {0,0,0,0}
+			emittingRange[key] = light[2]
 		end
-		Color.add_(emittingCells[key], light)
+		Color.add_(emittingCells[key], light[1])
 	end
 	
 	for i=1,self._options.passes do
-		self:_emitLight(emittingCells, litCells, doneCells)
+		self:_emitLight(emittingCells, litCells, doneCells, emittingRange)
 		if not i == self._options.passes then
 			emittingCells = self:_computeEmitters(litCells, doneCells)
 		end
 	end
 	
 	for litKey in pairs(litCells) do
-		local x,y = getXY(litKey)
+		local x,y = XY(litKey)
 		callback(x,y,litCells[litKey])
 	end
 	
 	return self
 end
 
-function Lighting:_emitLight(emittingCells, litCells, doneCells)
+function Lighting:_emitLight(emittingCells, litCells, doneCells, emittingRange)
 	for key in pairs(emittingCells) do
-		local x,y = getXY(key)
-		self:_emitLightFromCell(x, y, emittingCells[key], litCells)
+		local x,y = XY(key)
+		self:_emitLightFromCell(
+			x, y, 
+			emittingCells[key], 
+			litCells, 
+			emittingRange[key]
+		)
 		doneCells[key] = true
 	end
 	return self
@@ -115,6 +125,8 @@ function Lighting:_computeEmitters(litCells, doneCells)
 					intensity = intensity + part
 				end
 				
+				emission[4] = color[4]
+				
 				if intensity > self._options.emissionThreshold then 
 					result[key] = emission
 				end
@@ -125,14 +137,14 @@ function Lighting:_computeEmitters(litCells, doneCells)
 	return result
 end
 
-function Lighting:_emitLightFromCell(x,y,color,litCells)
+function Lighting:_emitLightFromCell(x,y,color,litCells,range)
 	local key = x..','..y
 	local fov
 	
 	if self._fovCache[key] then
 		fov = self._fovCache[key]
 	else
-		fov = self:_updateFOV(x,y)
+		fov = self:_updateFOV(x,y,range)
 	end
 	
 	for fovKey,formFactor in pairs(fov) do
@@ -153,11 +165,12 @@ function Lighting:_emitLightFromCell(x,y,color,litCells)
 	return self
 end
 
-function Lighting:_updateFOV(x,y)	
+function Lighting:_updateFOV(x,y,range)
+	--print("FOV@"..x..","..y.."="..range)
 	local key1 = x..','..y
-	local cache = {}
+	cache = {}
 	self._fovCache[key1] = cache
-	local range = self._options.range
+	range = range or self._options.range
 	local cb = function(x,y,r,vis)
 		local key2 = x..','..y
 		local formFactor = vis * (1-r/range)

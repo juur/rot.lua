@@ -13,14 +13,14 @@ function Display:new(options)
 	options = options or {}
 	
 	local defaultOptions = {
-		width 		= options.width 		or 40,
-		height 		= options.height 		or 20,
+		width 		= options.width 		or 20,
+		height 		= options.height 		or 16,
 		layout 		= options.layout 		or 'rect',
 		spacing		= options.spacing 		or 1,
 		border 		= options.border 		or 0,
 		fontSize 	= options.fontSize 		or 32,
-		fontFamily	= options.fontFamily 	or 'lucon',
-		fontStyle	= options.fontStyle 	or 'Regular',
+		fontFamily	= options.fontFamily 	or 'slkscr',
+		fontStyle	= options.fontStyle 	or nil,
 		fg			= options.fg 			or '#ccccccff',
 		bg			= options.bg 			or '#000000ff',
 		tileWidth	= options.tileWidth 	or 32,
@@ -37,7 +37,7 @@ function Display:new(options)
 end
 
 function Display:clear()
-	self.canvas:clear()
+	if not self.canvas == nil then self.canvas:clear() end
 	self._data = {}
 	self._dirty = true
 end
@@ -50,8 +50,12 @@ function Display:setOptions(options)
 	if options.width or options.height or options.fontSize or
 		options.fontFamily or options.spacing or options.layout then
 		
+		local fontName = options.fontStyle 
+			and options.fontFamily..'-'..options.fontStyle 
+			or options.fontFamily
+		
 		self.font = love.graphics.newFont(
-			options.fontFamily..'-'..options.fontStyle..'.ttf', 
+			fontName..'.ttf', 
 			options.fontSize
 		)
 				
@@ -69,37 +73,26 @@ function Display:setOptions(options)
 	end
 end
 
-function Display:computeSize(availWidth, availHeight)
-	return self._backend.computeSize(
-		availWidth, availHeight, 
-		self._options
-	)
-end
-
-function Display:computeFontSize(availWidth, availHeight)
-	return self._backend.computeFontSize(
-		availWidth, availHeight,
-		self._options
-	)
-end
-
 function Display:draw(x,y,ch,fg,bg)
 	fg = fg or self._options.fg
 	bg = bg or self._options.bg
 	
-	self._data[x..','..y] = {x,y,ch,fg,bg}
+	local key = x..','..y
 	
+	self._data[key] = {x,y,ch,fg,bg}
+	self:invalidate(key)
+end
+
+function Display:invalidate(xy)
 	if self._dirty == true then return end
 	if self._dirty == false then self._dirty = {} end
-	self._dirty[x..','..y] = true
+	self._dirty[xy] = true
 end
 
 function Display:_tick()	
-	if self._dirty == false then return end
-	
-	local bg = toRGB(self._options.bg)
-	
-	if self._dirty == true then
+	if self._dirty == false then 
+		return
+	elseif self._dirty == true then
 		for id in pairs(self._data) do
 			self:_draw(id, false)
 		end
@@ -118,18 +111,3 @@ function Display:_draw(key, clearBefore)
 	
 	self._backend:draw(data, clearBefore)
 end
-
-
-function toRGB(string)
-	local bg = {}
-	
-	for i in string:gmatch('[0-9a-fA-F][0-9a-fA-F]') do
-		bg[#bg+1] = tonumber(i,16)
-	end
-	
-	if #bg == 3 then bg[4] = 255 end
-	
-	return bg
-end
-
-

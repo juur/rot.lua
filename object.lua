@@ -1,5 +1,7 @@
 require "class"
 
+table.inspect = require "inspect"
+
 Object = Class:newClass("Object")
 
 function Object:new()
@@ -15,7 +17,7 @@ function findTable(table, item)
 end
 
 
-function getXY(key)
+function XY(key)
 	assert(key and type(key) == 'string')
 	
 	local r = {}

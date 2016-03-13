@@ -18,8 +18,8 @@ function Scheduler:getTime()
 end
 
 function Scheduler:add(item, doRepeat)
-	if doRepeat then table.insert(self._repeat, item) end
-	return self
+	if doRepeat then self._repeat[item] = true end
+	return item
 end
 
 function Scheduler:clear()
@@ -32,12 +32,8 @@ end
 function Scheduler:remove(item)
 	local result = self._queue:remove(item)
 	
-	local index = findTable(self._repeat, item)
-	
-	if index then
-		table.remove(self._repeat, index)
-	end
-	
+	self._repeat[item] = nil
+		
 	if self._current == item then self._current = nil end
 	
 	return result

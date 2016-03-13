@@ -1,6 +1,5 @@
 require "object"
 require "rot"
-table.inspect = require "inspect"
 
 FOV = Class:newClass("FOV",Object)
 
