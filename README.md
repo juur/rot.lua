@@ -1,4 +1,4 @@
 rot.lua
 =======
 
-A port of ROT.js to Lua
+A port of https://github.com/ondras/rot.js to Lua
